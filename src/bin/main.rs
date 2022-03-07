@@ -12,7 +12,7 @@ fn main() {
     let listener = TcpListener::bind(format!("{HOST}:{PORT}")).unwrap();
     println!("HTTP Server listening on {HOST}:{PORT}");
 
-    let pool = ThreadPool::new(4);
+    let pool = ThreadPool::new(8);
 
     for stream in listener.incoming() {
         let stream = stream.unwrap();
@@ -21,6 +21,8 @@ fn main() {
             handle_connection(stream);
         });
     }
+    
+    println!("Shutting down");
 }
 
 fn handle_connection(mut stream: TcpStream) {
@@ -30,7 +32,7 @@ fn handle_connection(mut stream: TcpStream) {
     let get = b"GET / HTTP/1.1\r\n";
 
     let (status_line, filename) = if buffer.starts_with(get) {
-        ("HTTP/1.1 200 OK", "hello.html")
+        ("HTTP/1.1 200 OK", "index.html")
     } else {
         ("HTTP/1.1 404 NOT FOUND", "404.html")
     };
