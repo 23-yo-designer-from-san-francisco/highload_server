@@ -1,18 +1,14 @@
+use hello::ThreadPool;
+use std::fs;
 use std::io::prelude::*;
 use std::net::TcpListener;
 use std::net::TcpStream;
-use std::fs;
-use highload_server::ThreadPool;
-
-
-const HOST: &str = "127.0.0.1";
-const PORT: &str = "7878";
+use std::thread;
+use std::time::Duration;
 
 fn main() {
-    let listener = TcpListener::bind(format!("{HOST}:{PORT}")).unwrap();
-    println!("HTTP Server listening on {HOST}:{PORT}");
-
-    let pool = ThreadPool::new(8);
+    let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
+    let pool = ThreadPool::new(4);
 
     for stream in listener.incoming() {
         let stream = stream.unwrap();
@@ -21,8 +17,8 @@ fn main() {
             handle_connection(stream);
         });
     }
-    
-    println!("Shutting down");
+
+    println!("Shutting down.");
 }
 
 fn handle_connection(mut stream: TcpStream) {
@@ -30,9 +26,13 @@ fn handle_connection(mut stream: TcpStream) {
     stream.read(&mut buffer).unwrap();
 
     let get = b"GET / HTTP/1.1\r\n";
+    let sleep = b"GET /sleep HTTP/1.1\r\n";
 
     let (status_line, filename) = if buffer.starts_with(get) {
-        ("HTTP/1.1 200 OK", "index.html")
+        ("HTTP/1.1 200 OK", "hello.html")
+    } else if buffer.starts_with(sleep) {
+        thread::sleep(Duration::from_secs(5));
+        ("HTTP/1.1 200 OK", "hello.html")
     } else {
         ("HTTP/1.1 404 NOT FOUND", "404.html")
     };
