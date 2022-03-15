@@ -38,7 +38,7 @@ fn handle_connection(mut stream: TcpStream) {
 
     if let Some(matches) = req {
         let req_type = matches.get(1).map_or("GET", |m| m.as_str());
-        let path = matches.get(2).map_or("/", |m| m.as_str());
+        let mut path = matches.get(2).map_or("/", |m| m.as_str());
         // println!("Req type: {}\nPath: {}", req_type, path);
 
         // let (status_line, filename) = if buffer.starts_with(get) {
@@ -52,7 +52,9 @@ fn handle_connection(mut stream: TcpStream) {
         let mut full_path: String = base_path.to_owned();
 
         let response: String;
-
+        if path == "/" {
+            path = "/index.html";
+        }
         full_path.push_str(path);
         match fs::read_to_string(&full_path) {
             Ok(contents) => {
