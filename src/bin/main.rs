@@ -87,6 +87,7 @@ fn handle_connection(mut stream: TcpStream) {
             },
             Err(_) => {
                 response = "HTTP/1.1 404 NOT FOUND".to_string();
+                stream.write(response.as_bytes()).unwrap();
             }   
         }
     
