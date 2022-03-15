@@ -85,7 +85,7 @@ fn handle_connection(mut stream: TcpStream) {
                 }
              },
              "POST"|"PUT"|"OPTIONS"|"DELETE"|"CONNECT"|"TRACE"|"PATCH" => {
-                let response = "HTTP/1.1 405 Method Not Allowed".to_string();
+                let response = "HTTP/1.1 405 Method Not Allowed\r\nAllow: GET, HEAD".to_string();
                 stream.write(response.as_bytes()).unwrap();
              }
              _ => {},
