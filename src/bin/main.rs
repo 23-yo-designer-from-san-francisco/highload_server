@@ -7,6 +7,7 @@ use num_cpus;
 use lazy_static::lazy_static;
 use regex::{Regex};
 use String;
+use urlencoding::decode;
 
 fn main() {
     let host = env::var("SERVER_HOST").unwrap();
@@ -29,7 +30,7 @@ fn handle_connection(mut stream: TcpStream) {
     stream.read(&mut buffer).unwrap();
 
     lazy_static! {
-        static ref REQUEST_RE: Regex = Regex::new(r#"(GET|HEAD|POST|PUT|OPTIONS|DELETE|CONNECT|TRACE|PATCH) (/[\w./\-?=]*) HTTP/1\.1"#).unwrap();
+        static ref REQUEST_RE: Regex = Regex::new(r#"(GET|HEAD|POST|PUT|OPTIONS|DELETE|CONNECT|TRACE|PATCH) (/[\w./\-?=%]*) HTTP/1\.1"#).unwrap();
     }
 
     let request = String::from_utf8_lossy(&buffer);
@@ -50,6 +51,8 @@ fn handle_connection(mut stream: TcpStream) {
                     path.push_str("index.html");
                 }
                 full_path.push_str(&path);
+                let full_path = decode(&full_path).unwrap().to_string();
+
                 match fs::read(&full_path) {
                     Ok(contents) => {
                         let extension = Path::new(&full_path).extension().and_then(|s| s.to_str()).unwrap();
