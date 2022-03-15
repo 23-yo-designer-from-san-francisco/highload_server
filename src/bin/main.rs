@@ -78,10 +78,10 @@ fn handle_connection(mut stream: TcpStream) {
                             "close",
                             content_type,
                         );
+                        stream.write(response.as_bytes()).unwrap();
                         if method == "GET" {
                             stream.write(&contents).unwrap();
                         }
-                        stream.write(response.as_bytes()).unwrap();
                     },
                     Err(_) => {
                         response = "HTTP/1.1 404 NOT FOUND".to_string();
