@@ -75,7 +75,9 @@ fn handle_connection(mut stream: TcpStream) {
                             "close",
                             content_type,
                         );
-                        stream.write(response.as_bytes()).unwrap();
+                        if method == "GET" {
+                            stream.write(response.as_bytes()).unwrap();
+                        }
                         stream.write(&contents).unwrap();
                     },
                     Err(_) => {
