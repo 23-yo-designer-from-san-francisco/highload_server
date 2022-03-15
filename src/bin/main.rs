@@ -29,7 +29,7 @@ fn handle_connection(mut stream: TcpStream) {
     stream.read(&mut buffer).unwrap();
 
     lazy_static! {
-        static ref REQUEST_RE: Regex = Regex::new(r#"(GET|HEAD|POST|PUT|OPTIONS|DELETE|CONNECT|TRACE|PATCH) (/[\w./-]*) HTTP/1\.1"#).unwrap();
+        static ref REQUEST_RE: Regex = Regex::new(r#"(GET|HEAD|POST|PUT|OPTIONS|DELETE|CONNECT|TRACE|PATCH) (/[\w./-?=]*) HTTP/1\.1"#).unwrap();
     }
 
     let request = String::from_utf8_lossy(&buffer);
