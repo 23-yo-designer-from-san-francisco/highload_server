@@ -28,7 +28,7 @@ fn handle_connection(mut stream: TcpStream) {
 
     let get = b"GET / HTTP/1.1\r\n";
     lazy_static! {
-        static ref REQUEST_RE: Regex = Regex::new(r#"(GET|HEAD) (/[\w./]*) HTTP/1\.1"#).unwrap();
+        static ref REQUEST_RE: Regex = Regex::new(r#"(GET|HEAD|POST|PUT|OPTIONS|DELETE|CONNECT|TRACE|PATCH) (/[\w./]*) HTTP/1\.1"#).unwrap();
     }
 
     let request = String::from_utf8_lossy(&buffer);
@@ -46,21 +46,30 @@ fn handle_connection(mut stream: TcpStream) {
         // } else {
         //     ("HTTP/1.1 404 NOT FOUND", "404.html")
         // };
-
-        let status_line = "HTTP/1.1 200 OK";
     
         let base_path = "/Users/l.belyaev/highload_server";
 
         let mut full_path: String = base_path.to_owned();
+
+        let mut response: String;
+
         full_path.push_str(path);
-        let contents = fs::read_to_string(full_path).unwrap();
+        match fs::read_to_string(full_path) {
+            Ok(contents) => {
+                let status_line = "HTTP/1.1 200 OK";
+                response = format!(
+                    "{}\r\nDate: {}\r\nServer: {}\r\nContent-Length: {}\r\nConnection: {}\r\n\r\n{}",
+                    status_line,
+                    "Today",
+                    "rust",
+                    contents.len(),
+                    "Closed",
+                    contents
+                );
+            },
+            Err(_) => response = "HTTP/1.1 404 NOT FOUND".to_string(),
+        }
     
-        let response = format!(
-            "{}\r\nContent-Length: {}\r\n\r\n{}",
-            status_line,
-            contents.len(),
-            contents
-        );
     
         stream.write(response.as_bytes()).unwrap();
         stream.flush().unwrap();
