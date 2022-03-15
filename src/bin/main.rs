@@ -1,5 +1,5 @@
 use highload_server::ThreadPool;
-use std::fs;
+use std::{fs, env};
 use std::io::prelude::*;
 use std::net::{TcpListener, TcpStream};
 use std::path::Path;
@@ -9,7 +9,8 @@ use regex::{Regex};
 use String;
 
 fn main() {
-    let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
+    let host = env::var("SERVER_HOST").unwrap();
+    let listener = TcpListener::bind(host).unwrap();
     let pool = ThreadPool::new(num_cpus::get());
 
     for stream in listener.incoming() {
@@ -47,8 +48,8 @@ fn handle_connection(mut stream: TcpStream) {
         //     ("HTTP/1.1 404 NOT FOUND", "404.html")
         // };
     
-        let base_path = "/Users/l.belyaev/highload_server";
-
+        // let base_path = "/Users/l.belyaev/highload_server";
+        let base_path = env::var("SERVER_BASE_PATH").unwrap();
         let mut full_path: String = base_path.to_owned();
 
         let response: String;
