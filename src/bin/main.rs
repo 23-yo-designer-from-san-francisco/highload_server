@@ -26,20 +26,19 @@ fn handle_connection(mut stream: TcpStream) {
     let mut buffer = [0; 1024];
     stream.read(&mut buffer).unwrap();
 
-    let get = b"GET / HTTP/1.1\r\n";
     lazy_static! {
         static ref REQUEST_RE: Regex = Regex::new(r#"(GET|HEAD|POST|PUT|OPTIONS|DELETE|CONNECT|TRACE|PATCH) (/[\w./]*) HTTP/1\.1"#).unwrap();
     }
 
     let request = String::from_utf8_lossy(&buffer);
-    println!("{}", request);
+    // println!("{}", request);
 
     let req = REQUEST_RE.captures(&request);//.len();//.get(0).map_or("", |m| m.as_str());
 
     if let Some(matches) = req {
         let req_type = matches.get(1).map_or("GET", |m| m.as_str());
         let path = matches.get(2).map_or("/", |m| m.as_str());
-        println!("Req type: {}\nPath: {}", req_type, path);
+        // println!("Req type: {}\nPath: {}", req_type, path);
 
         // let (status_line, filename) = if buffer.starts_with(get) {
         //     ("HTTP/1.1 200 OK", "index.html")
@@ -63,7 +62,7 @@ fn handle_connection(mut stream: TcpStream) {
                     "Today",
                     "rust",
                     contents.len(),
-                    "Closed",
+                    "Keep-Alive",
                     contents
                 );
             },
@@ -74,6 +73,6 @@ fn handle_connection(mut stream: TcpStream) {
         stream.write(response.as_bytes()).unwrap();
         stream.flush().unwrap();
     } else {
-        println!("Parse error");
+        // println!("Parse error");
     }
 }
