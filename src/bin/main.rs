@@ -57,13 +57,13 @@ fn handle_connection(mut stream: TcpStream) {
             path = "/index.html";
         }
         full_path.push_str(path);
-        match fs::read_to_string(&full_path) {
+        match fs::read(&full_path) {
             Ok(contents) => {
                 let extension = Path::new(&full_path).extension().and_then(|s| s.to_str()).unwrap();
                 let content_type = match extension {
                     "html" => "text/html",
                     "css" => "text/css",
-                    "js" => "text/javascript",
+                    "js" => "application/javascript",
                     "jpg" => "image/jpeg",
                     "jpeg" => "image/jpeg",
                     "png" => "image/png",
@@ -74,15 +74,16 @@ fn handle_connection(mut stream: TcpStream) {
 
                 let status_line = "HTTP/1.1 200 OK";
                 response = format!(
-                    "{}\r\nDate: {}\r\nServer: {}\r\nContent-Length: {}\r\nConnection: {}\r\nContent-type: {}\r\n\r\n{}",
+                    "{}\r\nDate: {}\r\nServer: {}\r\nContent-Length: {}\r\nConnection: {}\r\nContent-type: {}\r\n\r\n",
                     status_line,
                     "Today",
                     "rust",
                     contents.len(),
                     "close",
                     content_type,
-                    contents
                 );
+                stream.write(response.as_bytes()).unwrap();
+                stream.write(&contents).unwrap();
             },
             Err(_) => {
                 response = "HTTP/1.1 404 NOT FOUND".to_string();
@@ -90,7 +91,7 @@ fn handle_connection(mut stream: TcpStream) {
         }
     
     
-        stream.write(response.as_bytes()).unwrap();
+        
         stream.flush().unwrap();
     } else {
         // println!("Parse error");
