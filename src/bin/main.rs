@@ -93,7 +93,7 @@ fn handle_connection(mut stream: TcpStream) {
                         response = format!(
                             "{}\r\nDate: {}\r\nServer: {}\r\nContent-Length: {}\r\nConnection: {}\r\nContent-type: {}\r\n\r\n",
                             status_line,
-                            dt.to_rfc2822(),
+                            dt.to_rfc2822().replace("+0000", "GMT"),
                             SERVER_NAME,
                             contents.len(),
                             "close",
