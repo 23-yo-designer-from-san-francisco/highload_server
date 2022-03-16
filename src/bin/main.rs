@@ -89,10 +89,11 @@ fn handle_connection(mut stream: TcpStream) {
                         }
         
                         let status_line = "HTTP/1.1 200 OK";
+                        let dt = chrono::offset::Utc::now();
                         response = format!(
                             "{}\r\nDate: {}\r\nServer: {}\r\nContent-Length: {}\r\nConnection: {}\r\nContent-type: {}\r\n\r\n",
                             status_line,
-                            "Today",
+                            dt.to_rfc2822(),
                             SERVER_NAME,
                             contents.len(),
                             "close",
@@ -121,7 +122,5 @@ fn handle_connection(mut stream: TcpStream) {
          }
     
         stream.flush().unwrap();
-    } else {
-        // println!("Parse error");
     }
 }
