@@ -63,18 +63,23 @@ fn handle_connection(mut stream: TcpStream) {
 
                 match fs::read(&full_path) {
                     Ok(contents) => {
-                        let extension = Path::new(&full_path).extension().and_then(|s| s.to_str()).unwrap();
-                        let content_type = match extension {
-                            "html" => "text/html",
-                            "css" => "text/css",
-                            "js" => "application/javascript",
-                            "jpg" => "image/jpeg",
-                            "jpeg" => "image/jpeg",
-                            "png" => "image/png",
-                            "gif" => "image/gif",
-                            "swf" => "application/x-shockwave-flash",
-                            _=>  "text/plain",
-                        };
+                        
+                        let content_type: &str;
+                        if let Some(ext) = Path::new(&full_path).extension().and_then(|s| s.to_str()) {
+                            content_type = match ext {
+                                "html" => "text/html",
+                                "css" => "text/css",
+                                "js" => "application/javascript",
+                                "jpg" => "image/jpeg",
+                                "jpeg" => "image/jpeg",
+                                "png" => "image/png",
+                                "gif" => "image/gif",
+                                "swf" => "application/x-shockwave-flash",
+                                _=>  "text/plain",
+                            };
+                        } else {
+                            content_type = "text/plain";
+                        }
         
                         let status_line = "HTTP/1.1 200 OK";
                         response = format!(
