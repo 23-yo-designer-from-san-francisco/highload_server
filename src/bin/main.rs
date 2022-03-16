@@ -61,8 +61,6 @@ fn handle_connection(mut stream: TcpStream) {
                     }
                 }
 
-                println!("{:?}", full_path);
-
                 match fs::read(&full_path) {
                     Ok(contents) => {
                         let extension = Path::new(&full_path).extension().and_then(|s| s.to_str()).unwrap();
