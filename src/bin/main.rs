@@ -53,6 +53,11 @@ fn handle_connection(mut stream: TcpStream) {
 
                 full_path.push_str(&path);
                 let mut full_path = decode(&full_path).unwrap().to_string().replace("../", "");
+                
+                let query_params_re = Regex::new(r#"[?&][\w]+=[\w]+"#).unwrap();
+
+                full_path = query_params_re.replace_all(&full_path, "").to_string();
+
                 let mut is_dir = false;
                 if let Ok(meta) = metadata(&full_path) {
                     if meta.is_dir() {
