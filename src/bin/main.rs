@@ -10,6 +10,8 @@ use String;
 use urlencoding::decode;
 use std::fs::metadata;
 
+static SERVER_NAME: &str = "rust";
+
 fn main() {
     let host = env::var("SERVER_HOST").unwrap();
     let listener = TcpListener::bind(host).unwrap();
@@ -81,7 +83,7 @@ fn handle_connection(mut stream: TcpStream) {
                             "{}\r\nDate: {}\r\nServer: {}\r\nContent-Length: {}\r\nConnection: {}\r\nContent-type: {}\r\n\r\n",
                             status_line,
                             "Today",
-                            "rust",
+                            SERVER_NAME,
                             contents.len(),
                             "close",
                             content_type,
@@ -96,6 +98,7 @@ fn handle_connection(mut stream: TcpStream) {
                             true =>  "HTTP/1.1 403 Forbidden".to_string(),
                             false => "HTTP/1.1 404 Not Found".to_string(),
                         };
+                        let response = format!("{}\r\nServer: {}", response, SERVER_NAME);
                         stream.write(response.as_bytes()).unwrap();
                     }   
                 }
