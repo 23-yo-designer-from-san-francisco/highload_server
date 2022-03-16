@@ -8,6 +8,7 @@ use lazy_static::lazy_static;
 use regex::{Regex};
 use String;
 use urlencoding::decode;
+use std::fs::metadata;
 
 fn main() {
     let host = env::var("SERVER_HOST").unwrap();
@@ -47,11 +48,16 @@ fn handle_connection(mut stream: TcpStream) {
                 let mut full_path: String = base_path.to_owned();
         
                 let response: String;
-                if path == "/" || path.ends_with("/") {
-                    path.push_str("index.html");
-                }
+
                 full_path.push_str(&path);
-                let full_path = decode(&full_path).unwrap().to_string();
+                let mut full_path = decode(&full_path).unwrap().to_string();
+                if let Ok(meta) = metadata(&full_path) {
+                    if meta.is_dir() {
+                        full_path.push_str("index.html");
+                    }
+                }
+
+                println!("{:?}", full_path);
 
                 match fs::read(&full_path) {
                     Ok(contents) => {
