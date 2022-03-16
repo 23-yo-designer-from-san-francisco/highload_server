@@ -80,6 +80,8 @@ fn handle_connection(mut stream: TcpStream) {
                         } else {
                             content_type = "text/plain";
                         }
+
+                        print!("{:?}", full_path);
         
                         let status_line = "HTTP/1.1 200 OK";
                         response = format!(
