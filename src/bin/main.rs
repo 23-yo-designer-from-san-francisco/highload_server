@@ -51,8 +51,10 @@ fn handle_connection(mut stream: TcpStream) {
 
                 full_path.push_str(&path);
                 let mut full_path = decode(&full_path).unwrap().to_string();
+                let mut is_dir = false;
                 if let Ok(meta) = metadata(&full_path) {
                     if meta.is_dir() {
+                        is_dir = true;
                         full_path.push_str("index.html");
                     }
                 }
@@ -90,7 +92,10 @@ fn handle_connection(mut stream: TcpStream) {
                         }
                     },
                     Err(_) => {
-                        response = "HTTP/1.1 404 NOT FOUND".to_string();
+                        response = match is_dir {
+                            true =>  "HTTP/1.1 403 Forbidden".to_string(),
+                            false => "HTTP/1.1 404 Not Found".to_string(),
+                        };
                         stream.write(response.as_bytes()).unwrap();
                     }   
                 }
