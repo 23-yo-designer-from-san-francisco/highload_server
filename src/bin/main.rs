@@ -100,7 +100,7 @@ fn handle_connection(mut stream: TcpStream) {
                         );
                         stream.write(response.as_bytes()).unwrap();
                         if method == "GET" {
-                            stream.write(&contents).unwrap();
+                            stream.write(&contents).unwrap_or_default();
                         }
                     },
                     Err(_) => {
