@@ -45,7 +45,7 @@ fn handle_connection(mut stream: TcpStream) {
  
          match method {
              "GET" | "HEAD" => {
-                let mut path = matches.get(2).map_or("/", |m| m.as_str()).to_string();
+                let path = matches.get(2).map_or("/", |m| m.as_str()).to_string();
                 let base_path = env::var("SERVER_BASE_PATH").unwrap();
                 let mut full_path: String = base_path.to_owned();
         
