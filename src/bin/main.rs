@@ -52,7 +52,7 @@ fn handle_connection(mut stream: TcpStream) {
                 let response: String;
 
                 full_path.push_str(&path);
-                let mut full_path = decode(&full_path).unwrap().to_string();
+                let mut full_path = decode(&full_path).unwrap().to_string().replace("../", "");
                 let mut is_dir = false;
                 if let Ok(meta) = metadata(&full_path) {
                     if meta.is_dir() {
