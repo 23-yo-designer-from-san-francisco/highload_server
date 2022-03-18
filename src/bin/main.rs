@@ -128,13 +128,13 @@ fn handle_connection(mut stream: TcpStream, base_path: &str) {
                             true =>  "HTTP/1.1 403 Forbidden".to_string(),
                             false => "HTTP/1.1 404 Not Found".to_string(),
                         };
-                        let response = format!("{}\r\nServer: {}\r\nDate: {}", response, SERVER_NAME, date);
+                        let response = format!("{}\r\nServer: {}\r\nDate: {}\r\n\r\n", response, SERVER_NAME, date);
                         stream.write(response.as_bytes()).unwrap();
                     }   
                 }
              },
              "POST"|"PUT"|"OPTIONS"|"DELETE"|"CONNECT"|"TRACE"|"PATCH" => {
-                let response = format!("HTTP/1.1 405 Method Not Allowed\r\nAllow: GET, HEAD\r\nServer: {}\r\nDate: {}", SERVER_NAME, date);
+                let response = format!("HTTP/1.1 405 Method Not Allowed\r\nAllow: GET, HEAD\r\nServer: {}\r\nDate: {}\r\n\r\n", SERVER_NAME, date);
                 stream.write(response.as_bytes()).unwrap();
              }
              _ => {},
