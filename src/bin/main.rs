@@ -35,9 +35,9 @@ fn main() {
             let pool = ThreadPool::new(cpus);
             for stream in listener.incoming() {
                 let stream = stream.unwrap();
-                let path = config.get("document_root").unwrap();
+                let path: String = config.get("document_root").unwrap();
                 pool.execute(move || {
-                    handle_connection(stream, path);
+                    handle_connection(stream, &path);
                 });
             }
         
