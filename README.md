@@ -1,5 +1,5 @@
 # Func test
-
+```
 python3 httptest.py 
 test_directory_index (__main__.HttpServer)
 directory index file exists ... ok
@@ -54,6 +54,7 @@ Server header exists ... ok
 Ran 24 tests in 0.025s
 
 OK
+```
 
 # Nginx benchmark
 
