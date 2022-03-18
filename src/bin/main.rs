@@ -86,7 +86,8 @@ fn handle_connection(mut stream: TcpStream, base_path: &str) {
                         full_path.push_str("index.html");
                     }
                 }
-
+                let dt = chrono::offset::Utc::now();
+                let date = dt.to_rfc2822().replace("+0000", "GMT");
                 match fs::read(&full_path) {
                     Ok(contents) => {
                         
@@ -108,11 +109,10 @@ fn handle_connection(mut stream: TcpStream, base_path: &str) {
                         }
         
                         let status_line = "HTTP/1.1 200 OK";
-                        let dt = chrono::offset::Utc::now();
                         response = format!(
                             "{}\r\nDate: {}\r\nServer: {}\r\nContent-Length: {}\r\nConnection: {}\r\nContent-type: {}\r\n\r\n",
                             status_line,
-                            dt.to_rfc2822().replace("+0000", "GMT"),
+                            date,
                             SERVER_NAME,
                             contents.len(),
                             "close",
@@ -128,7 +128,7 @@ fn handle_connection(mut stream: TcpStream, base_path: &str) {
                             true =>  "HTTP/1.1 403 Forbidden".to_string(),
                             false => "HTTP/1.1 404 Not Found".to_string(),
                         };
-                        let response = format!("{}\r\nServer: {}", response, SERVER_NAME);
+                        let response = format!("{}\r\nServer: {}\r\nDate: {}", response, SERVER_NAME, date);
                         stream.write(response.as_bytes()).unwrap();
                     }   
                 }
