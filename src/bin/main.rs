@@ -8,9 +8,8 @@ use regex::{Regex};
 use String;
 use urlencoding::decode;
 use std::fs::{metadata};
-use config::{Config, FileFormat, File, Format};
+use config::{Config, FileFormat, File};
 use std::fs;
-use std::env;
 
 static SERVER_NAME: &str = "rust";
 
