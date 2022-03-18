@@ -1,5 +1,5 @@
 use highload_server::ThreadPool;
-use std::{fs, env};
+use core::num;
 use std::io::prelude::*;
 use std::net::{TcpListener, TcpStream};
 use std::path::Path;
@@ -8,24 +8,46 @@ use lazy_static::lazy_static;
 use regex::{Regex};
 use String;
 use urlencoding::decode;
-use std::fs::metadata;
+use std::fs::{metadata};
+use config::{Config, FileFormat, File, Format};
+use std::fs;
+use std::env;
 
 static SERVER_NAME: &str = "rust";
 
 fn main() {
-    let host = env::var("SERVER_HOST").unwrap();
-    let listener = TcpListener::bind(host).unwrap();
-    let pool = ThreadPool::new(num_cpus::get());
+    let builder = Config::builder()
+    .set_default("cpu_limit", "4").unwrap()
+    .set_default("host", "0.0.0.0:7878").unwrap()
+    .set_default("document_root", "/var/www/html").unwrap()
+    .add_source(File::new("/etc/httpd.conf", FileFormat::Toml));
 
-    for stream in listener.incoming() {
-        let stream = stream.unwrap();
-
-        pool.execute(|| {
-            handle_connection(stream);
-        });
+    match builder.build()  {
+        Ok(config) => {
+            let host: &str = config.get("host").unwrap();
+            println!("Host {}", host);
+            let listener = TcpListener::bind(host).unwrap();
+            let cpus_str: &str = config.get("cpu_limit").unwrap();
+            let mut cpus: usize = cpus_str.parse().unwrap();
+            let actual_cpus = num_cpus::get();
+            if cpus <= 0 || cpus > actual_cpus {
+                cpus = actual_cpus;
+            }
+            let pool = ThreadPool::new(cpus);
+            for stream in listener.incoming() {
+                let stream = stream.unwrap();
+        
+                pool.execute(|| {
+                    handle_connection(stream);
+                });
+            }
+        
+            println!("Shutting down.");
+        }
+        Err(e) => {
+            println!("{:?}", e);
+        }
     }
-
-    println!("Shutting down.");
 }
 
 fn handle_connection(mut stream: TcpStream) {
