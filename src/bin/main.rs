@@ -62,7 +62,8 @@ fn handle_connection(mut stream: TcpStream, base_path: &str) {
 
     if let Some(matches) = req {
         let method = matches.get(1).map_or("GET", |m| m.as_str());
- 
+        let dt = chrono::offset::Utc::now();
+        let date = dt.to_rfc2822().replace("+0000", "GMT");
          match method {
              "GET" | "HEAD" => {
                 let path = matches.get(2).map_or("/", |m| m.as_str()).to_string();
@@ -86,8 +87,7 @@ fn handle_connection(mut stream: TcpStream, base_path: &str) {
                         full_path.push_str("index.html");
                     }
                 }
-                let dt = chrono::offset::Utc::now();
-                let date = dt.to_rfc2822().replace("+0000", "GMT");
+            
                 match fs::read(&full_path) {
                     Ok(contents) => {
                         
@@ -134,7 +134,7 @@ fn handle_connection(mut stream: TcpStream, base_path: &str) {
                 }
              },
              "POST"|"PUT"|"OPTIONS"|"DELETE"|"CONNECT"|"TRACE"|"PATCH" => {
-                let response = "HTTP/1.1 405 Method Not Allowed\r\nAllow: GET, HEAD".to_string();
+                let response = format!("HTTP/1.1 405 Method Not Allowed\r\nAllow: GET, HEAD\r\nServer: {}\r\nDate: {}", SERVER_NAME, date);
                 stream.write(response.as_bytes()).unwrap();
              }
              _ => {},
