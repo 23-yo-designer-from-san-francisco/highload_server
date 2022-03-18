@@ -1,5 +1,4 @@
 use highload_server::ThreadPool;
-use core::num;
 use std::io::prelude::*;
 use std::net::{TcpListener, TcpStream};
 use std::path::Path;
@@ -36,9 +35,9 @@ fn main() {
             let pool = ThreadPool::new(cpus);
             for stream in listener.incoming() {
                 let stream = stream.unwrap();
-        
-                pool.execute(|| {
-                    handle_connection(stream);
+                let path = config.get("document_root").unwrap();
+                pool.execute(move || {
+                    handle_connection(stream, path);
                 });
             }
         
@@ -50,7 +49,7 @@ fn main() {
     }
 }
 
-fn handle_connection(mut stream: TcpStream) {
+fn handle_connection(mut stream: TcpStream, base_path: &str) {
     let mut buffer = [0; 1024];
     stream.read(&mut buffer).unwrap();
 
@@ -68,7 +67,6 @@ fn handle_connection(mut stream: TcpStream) {
          match method {
              "GET" | "HEAD" => {
                 let path = matches.get(2).map_or("/", |m| m.as_str()).to_string();
-                let base_path = env::var("SERVER_BASE_PATH").unwrap();
                 let mut full_path: String = base_path.to_owned();
         
                 let response: String;
