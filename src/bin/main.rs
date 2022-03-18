@@ -23,10 +23,10 @@ fn main() {
 
     match builder.build()  {
         Ok(config) => {
-            let host: &str = config.get("host").unwrap();
+            let host: String = config.get("host").unwrap();
             println!("Host {}", host);
             let listener = TcpListener::bind(host).unwrap();
-            let cpus_str: &str = config.get("cpu_limit").unwrap();
+            let cpus_str: String = config.get("cpu_limit").unwrap();
             let mut cpus: usize = cpus_str.parse().unwrap();
             let actual_cpus = num_cpus::get();
             if cpus <= 0 || cpus > actual_cpus {
